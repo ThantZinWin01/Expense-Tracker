@@ -25,7 +25,6 @@ function normalizeUsernameExact(username: string) {
   return username.trim();
 }
 
-
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
@@ -81,7 +80,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         [u, e, hash, nowIso()]
       );
     } catch (err: any) {
-      // fallback if UNIQUE constraint error happens
       const msg = String(err?.message ?? "");
       if (msg.toLowerCase().includes("users.username")) throw new Error("Username already exists.");
       if (msg.toLowerCase().includes("users.email")) throw new Error("Email already exists.");
@@ -94,9 +92,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
     if (!created) throw new Error("Failed to create account.");
 
-    // ✅ IMPORTANT: Do NOT save session on register (so it won't auto-login)
-    // await SecureStore.setItemAsync(SESSION_KEY, String(created.id));  <-- removed
-
     return created;
   };
 
@@ -106,7 +101,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!u) throw new Error("Username is required.");
     if (!password?.trim()) throw new Error("Password is required.");
 
-    // ✅ EXACT match (case-sensitive)
     const row = getOne<AuthUser & { password_hash: string }>(
       "SELECT id, username, email, password_hash FROM users WHERE username = ? COLLATE BINARY",
       [u]

@@ -199,10 +199,9 @@ export default function AddExpenseScreen() {
 
       <SafeAreaView edges={["top"]} style={styles.headerArea}>
         <View style={styles.headerRow}>
-          <Pressable onPress={onCancel} style={styles.menuBtn}>
-            <Ionicons name="chevron-back" size={28} color="#0d9488" />
+          <Pressable onPress={() => (navigation as any).openDrawer()} style={styles.menuBtn}>
+            <Ionicons name="menu" size={28} color="#0d9488" />
           </Pressable>
-
           <Text style={styles.headerTitle}>New Expense</Text>
           <View style={styles.placeholder} />
         </View>
@@ -311,7 +310,15 @@ export default function AddExpenseScreen() {
                     </Pressable>
                   </View>
 
-                  <DateTimePicker value={dateObj} mode="date" display="spinner" onChange={onDateChange} />
+                  <View style={styles.pickerContainer}>
+                    <DateTimePicker
+                      value={dateObj}
+                      mode="date"
+                      display="spinner"
+                      onChange={onDateChange}
+                      textColor="#000000"
+                    />
+                  </View>
                 </View>
               </View>
             </Modal>
@@ -492,10 +499,11 @@ const styles = StyleSheet.create({
   },
 
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingBottom: 40,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 0,
+    minHeight: 300,
   },
 
   modalHeader: {
@@ -509,5 +517,11 @@ const styles = StyleSheet.create({
     color: "#0d9488",
     fontWeight: "bold",
     fontSize: 17,
+  },
+
+  pickerContainer: {
+    height: 220,
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
   },
 });

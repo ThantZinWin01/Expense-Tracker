@@ -115,7 +115,6 @@ export default function SummaryScreen() {
         </Pressable>
       </View>
 
-      {/* Stats card */}
       <View style={styles.statsGlassCard}>
         <View style={styles.statBox}>
           <Text style={styles.statLabel}>MONTHLY SPEND</Text>
