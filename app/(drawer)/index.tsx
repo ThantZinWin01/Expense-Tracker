@@ -4,7 +4,7 @@ import { getAll, run } from "@/lib/db/database";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation, useRouter } from "expo-router";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -29,7 +29,6 @@ export default function ExpensesScreen() {
   const [filter, setFilter] = useState<Filter>("today");
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
-
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -93,17 +92,25 @@ export default function ExpensesScreen() {
     router.push(`/expense/${selectedExpense.id}`);
   };
 
-  const emptyMessage = () => {
-    if (filter === "today") return "No expenses recorded today.";
-    if (filter === "this week") return "No expenses recorded this week.";
-    return "No expenses recorded this month.";
+  const emptyCopy = useMemo(() => {
+    if (filter === "today") {
+      return { title: "No expenses recorded today.", cta: "Add New Expense", showCta: true };
+    }
+    if (filter === "this week") {
+      return { title: "No expenses recorded this week.", cta: "Add New Expense", showCta: true };
+    }
+    return { title: "No expenses recorded this month.", cta: "Add New Expense", showCta: true };
+  }, [filter]);
+
+  const goAddExpense = () => {
+    router.push("/(drawer)/add-expense");
   };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
-      <SafeAreaView edges={['top']} style={styles.headerArea}>
+      <SafeAreaView edges={["top"]} style={styles.headerArea}>
         <View style={styles.header}>
           <Pressable onPress={() => (navigation as any).openDrawer()} style={styles.menuBtn}>
             <Ionicons name="menu" size={28} color="#0d9488" />
@@ -122,9 +129,7 @@ export default function ExpensesScreen() {
               onPress={() => setFilter(f)}
               style={[styles.segmentBtn, filter === f && styles.segmentBtnActive]}
             >
-              <Text style={[styles.segmentText, filter === f && styles.segmentTextActive]}>
-                {f}
-              </Text>
+              <Text style={[styles.segmentText, filter === f && styles.segmentTextActive]}>{f}</Text>
             </Pressable>
           ))}
         </View>
@@ -133,16 +138,23 @@ export default function ExpensesScreen() {
       <FlatList
         data={expenses}
         keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={[
-          styles.listPadding,
-          expenses.length === 0 && { flexGrow: 1 }
-        ]}
+        contentContainerStyle={[styles.listPadding, expenses.length === 0 && { flexGrow: 1 }]}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="wallet-outline" size={48} color="#99bcba" />
             <Text style={styles.emptyTitle}>No Transactions</Text>
-            <Text style={styles.emptyText}>{emptyMessage()}</Text>
+
+            <Text style={styles.emptyText}>{emptyCopy.title}</Text>
+
+            {emptyCopy.showCta && (
+              <Pressable
+                onPress={goAddExpense}
+                style={({ pressed }) => [styles.emptyCtaBtn, pressed && { opacity: 0.75 }]}
+              >
+                <Text style={styles.emptyCtaText}>{emptyCopy.cta}</Text>
+              </Pressable>
+            )}
           </View>
         }
         renderItem={({ item }) => (
@@ -170,17 +182,14 @@ export default function ExpensesScreen() {
                 <Text style={styles.currencyLabel}>MMK</Text>
               </View>
 
-              <Pressable
-                onPress={() => showOptions(item)}
-                style={({ pressed }) => [styles.moreBtn, pressed && { opacity: 0.5 }]}
-              >
+              <Pressable onPress={() => showOptions(item)} style={({ pressed }) => [styles.moreBtn, pressed && { opacity: 0.5 }]}>
                 <Ionicons name="ellipsis-vertical" size={18} color="#99bcba" />
               </Pressable>
             </View>
           </View>
         )}
       />
-      
+
       <ActionSheetModal
         visible={menuVisible}
         title="Transaction"
@@ -194,7 +203,6 @@ export default function ExpensesScreen() {
           { label: "Note", value: selectedExpense?.note ?? "—" },
         ]}
       />
-
     </View>
   );
 }
@@ -207,20 +215,20 @@ const styles = StyleSheet.create({
   menuBtn: { width: 40 },
   placeholder: { width: 40 },
   headerTitle: { color: "#134e4a", fontSize: 20, fontWeight: "900" },
-  headerUnderline: { width: 30, height: 4, backgroundColor: "#0d9488", borderRadius: 2, alignSelf: 'center', marginTop: 4 },
+  headerUnderline: { width: 30, height: 4, backgroundColor: "#0d9488", borderRadius: 2, alignSelf: "center", marginTop: 4 },
 
   tabSection: { paddingHorizontal: 20, paddingTop: 15, paddingBottom: 25 },
-  segmentTrack: { flexDirection: 'row', backgroundColor: "rgba(13, 148, 136, 0.08)", borderRadius: 25, padding: 5 },
-  segmentBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 20 },
+  segmentTrack: { flexDirection: "row", backgroundColor: "rgba(13, 148, 136, 0.08)", borderRadius: 25, padding: 5 },
+  segmentBtn: { flex: 1, paddingVertical: 10, alignItems: "center", borderRadius: 20 },
   segmentBtnActive: { backgroundColor: "#0d9488" },
-  segmentText: { fontSize: 11, fontWeight: "800", color: "#5f9e98", textTransform: 'uppercase' },
+  segmentText: { fontSize: 11, fontWeight: "800", color: "#5f9e98", textTransform: "uppercase" },
   segmentTextActive: { color: "#fff" },
 
   listPadding: { paddingHorizontal: 20, paddingBottom: 40 },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     padding: 16,
     borderRadius: 24,
@@ -228,29 +236,31 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(13, 148, 136, 0.1)",
   },
-  leftGroup: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  leftGroup: { flexDirection: "row", alignItems: "center", flex: 1 },
   textStack: { flex: 1 },
   indicatorTeal: { width: 4, height: 35, borderRadius: 2, backgroundColor: "#0d9488", marginRight: 12 },
   categoryLabel: { fontSize: 16, fontWeight: "700", color: "#134e4a" },
   noteLabel: { fontSize: 13, color: "#475569", fontWeight: "500" },
   dateLabel: { fontSize: 10, color: "#5f9e98", marginTop: 2, fontWeight: "600" },
 
-  rightGroup: { flexDirection: 'row', alignItems: 'center' },
-  amountContainer: { alignItems: 'flex-end', marginRight: 10 },
+  rightGroup: { flexDirection: "row", alignItems: "center" },
+  amountContainer: { alignItems: "flex-end", marginRight: 10 },
   amountLabel: { fontSize: 17, fontWeight: "900", color: "#0f172a" },
   currencyLabel: { fontSize: 10, color: "#0d9488", fontWeight: "800" },
   moreBtn: {
     padding: 8,
-    backgroundColor: '#f0fdfa',
+    backgroundColor: "#f0fdfa",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.1)'
+    borderColor: "rgba(13, 148, 136, 0.1)",
   },
+
   emptyContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingBottom: 80,
+    paddingHorizontal: 30,
   },
 
   emptyTitle: {
@@ -258,6 +268,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
     color: "#134e4a",
+    textAlign: "center",
   },
 
   emptyText: {
@@ -265,6 +276,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
     color: "#99bcba",
+    textAlign: "center",
   },
 
+  emptyCtaBtn: {
+    marginTop: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: "rgba(13, 148, 136, 0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(13, 148, 136, 0.15)",
+  },
+  emptyCtaText: {
+    color: "#0d9488",
+    fontWeight: "900",
+    fontSize: 13,
+    letterSpacing: 0.5,
+    textAlign: "center",
+  },
 });
