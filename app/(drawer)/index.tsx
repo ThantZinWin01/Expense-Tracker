@@ -74,6 +74,10 @@ export default function ExpensesScreen() {
     setExpenses(rows);
   };
 
+  const goSummary = () => {
+    router.push("/(drawer)/summary");
+  };
+
   const showOptions = (item: Expense) => {
     setSelectedExpense(item);
     setMenuVisible(true);
@@ -190,6 +194,16 @@ export default function ExpensesScreen() {
         )}
       />
 
+      <Pressable
+        onPress={goSummary}
+        style={({ pressed }) => [
+          styles.fab,
+          pressed && { transform: [{ scale: 0.96 }], opacity: 0.9 },
+        ]}
+      >
+        <Ionicons name="stats-chart" size={26} color="#fff" />
+      </Pressable>
+
       <ActionSheetModal
         visible={menuVisible}
         title="Transaction"
@@ -295,4 +309,17 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textAlign: "center",
   },
+
+  fab: {
+    position: "absolute",
+    right: 22,
+    bottom: 30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#0d9488",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
 });
