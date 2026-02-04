@@ -29,7 +29,10 @@ export default function SettingsScreen() {
 
       <SafeAreaView edges={["top"]} style={styles.headerArea}>
         <View style={styles.headerRow}>
-          <Pressable onPress={() => (navigation as any).openDrawer()} style={styles.menuBtn}>
+          <Pressable
+            onPress={() => (navigation as any).openDrawer()}
+            style={styles.menuBtn}
+          >
             <Ionicons name="menu" size={28} color="#0d9488" />
           </Pressable>
           <Text style={styles.headerTitle}>Setting</Text>
@@ -71,7 +74,10 @@ export default function SettingsScreen() {
 
         <View style={styles.glassCard}>
           <Pressable
-            style={({ pressed }) => [styles.actionRow, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.actionRow,
+              pressed && styles.pressed,
+            ]}
             onPress={() => setLogoutVisible(true)}
           >
             <View style={styles.logoutLeft}>
@@ -95,7 +101,6 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: "#f0fdfa",
@@ -127,7 +132,7 @@ const styles = StyleSheet.create({
   },
 
   underlineContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 4,
   },
 
@@ -184,7 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#94a3b8",
     fontWeight: "800",
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
 
   value: {
@@ -208,8 +213,8 @@ const styles = StyleSheet.create({
   },
 
   logoutLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   logoutLabel: {
@@ -224,7 +229,7 @@ const styles = StyleSheet.create({
 
   footer: {
     marginTop: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   madeWith: {
@@ -232,5 +237,4 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     fontWeight: "700",
   },
-
 });

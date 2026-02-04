@@ -39,10 +39,14 @@ export default function LoginScreen() {
   });
 
   const [errors, setErrors] = useState<FieldErrors>({});
-  const timersRef = useRef<Partial<Record<Field, ReturnType<typeof setTimeout>>>>({});
+  const timersRef = useRef<
+    Partial<Record<Field, ReturnType<typeof setTimeout>>>
+  >({});
 
   const [helperErrors, setHelperErrors] = useState<FieldErrors>({});
-  const helperTimersRef = useRef<Partial<Record<Field, ReturnType<typeof setTimeout>>>>({});
+  const helperTimersRef = useRef<
+    Partial<Record<Field, ReturnType<typeof setTimeout>>>
+  >({});
 
   const clearError = (field: Field) => {
     setErrors((prev) => {
@@ -119,7 +123,9 @@ export default function LoginScreen() {
   useEffect(() => {
     return () => {
       Object.values(timersRef.current).forEach((t) => t && clearTimeout(t));
-      Object.values(helperTimersRef.current).forEach((t) => t && clearTimeout(t));
+      Object.values(helperTimersRef.current).forEach(
+        (t) => t && clearTimeout(t),
+      );
     };
   }, []);
 
@@ -149,7 +155,10 @@ export default function LoginScreen() {
       }
 
       if (!emailRegex.test(email)) {
-        showError("email", "Please enter a valid email (example: name@gmail.com).");
+        showError(
+          "email",
+          "Please enter a valid email (example: name@gmail.com).",
+        );
         return false;
       }
     }
@@ -175,16 +184,16 @@ export default function LoginScreen() {
         return false;
       }
     }
-
     return true;
   };
-
 
   const placeAuthError = (msg: string) => {
     const m = msg.toLowerCase();
 
-    if (m.includes("username already exists")) return showHelperError("username", msg);
-    if (m.includes("email already exists")) return showHelperError("email", msg);
+    if (m.includes("username already exists"))
+      return showHelperError("username", msg);
+    if (m.includes("email already exists"))
+      return showHelperError("email", msg);
 
     if (m.includes("user not found")) return showHelperError("password", msg);
     if (m.includes("invalid password")) return showHelperError("password", msg);
@@ -258,7 +267,9 @@ export default function LoginScreen() {
             <View style={styles.formWrapper}>
               <View style={styles.authCard}>
                 <View style={styles.cardHeader}>
-                  <Text style={styles.formTitle}>{isLogin ? "Sign In" : "Register"}</Text>
+                  <Text style={styles.formTitle}>
+                    {isLogin ? "Sign In" : "Register"}
+                  </Text>
                   <View style={styles.titleLine} />
                 </View>
 
@@ -302,7 +313,10 @@ export default function LoginScreen() {
                       style={styles.passwordInput}
                     />
 
-                    <Pressable style={styles.eyeBtn} onPress={() => setShowPass((v) => !v)}>
+                    <Pressable
+                      style={styles.eyeBtn}
+                      onPress={() => setShowPass((v) => !v)}
+                    >
                       <Ionicons
                         name={showPass ? "eye-outline" : "eye-off-outline"}
                         size={22}
@@ -327,7 +341,10 @@ export default function LoginScreen() {
                         style={styles.passwordInput}
                       />
 
-                      <Pressable style={styles.eyeBtn} onPress={() => setShowConfirm((v) => !v)}>
+                      <Pressable
+                        style={styles.eyeBtn}
+                        onPress={() => setShowConfirm((v) => !v)}
+                      >
                         <Ionicons
                           name={showConfirm ? "eye-outline" : "eye-off-outline"}
                           size={22}
@@ -353,7 +370,9 @@ export default function LoginScreen() {
                 <Pressable onPress={onSwitchMode} style={styles.switchBtn}>
                   <Text style={styles.switchText}>
                     {isLogin ? "Don't have an account? " : "Back to "}
-                    <Text style={styles.switchLink}>{isLogin ? "Create New" : "Login"}</Text>
+                    <Text style={styles.switchLink}>
+                      {isLogin ? "Create New" : "Login"}
+                    </Text>
                   </Text>
                 </Pressable>
               </View>
@@ -405,7 +424,13 @@ const styles = StyleSheet.create({
 
   cardHeader: { marginBottom: 30 },
   formTitle: { fontSize: 22, fontWeight: "700", color: "#1e293b" },
-  titleLine: { width: 30, height: 3, backgroundColor: "#0d9488", marginTop: 4, borderRadius: 2 },
+  titleLine: {
+    width: 30,
+    height: 3,
+    backgroundColor: "#0d9488",
+    marginTop: 4,
+    borderRadius: 2,
+  },
 
   inputGroup: { marginBottom: 18 },
   fieldLabel: {
@@ -433,7 +458,6 @@ const styles = StyleSheet.create({
   inputWithIcon: {
     position: "relative",
   },
-
 
   buttonContainer: { marginTop: 6 },
   actionButton: { backgroundColor: "#0d9488", height: 56, borderRadius: 12 },

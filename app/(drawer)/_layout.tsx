@@ -7,11 +7,10 @@ export default function DrawerLayout() {
     <Drawer
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
-
         headerStyle: {
           backgroundColor: "#fff",
-          elevation: 0, 
-          shadowOpacity: 0, 
+          elevation: 0,
+          shadowOpacity: 0,
           borderBottomWidth: 1,
           borderBottomColor: "#f1f5f9",
         },
@@ -28,13 +27,11 @@ export default function DrawerLayout() {
           width: 280,
           backgroundColor: "#fff",
         },
-        
 
-        drawerActiveBackgroundColor: "#f0fdfa", 
+        drawerActiveBackgroundColor: "#f0fdfa",
         drawerActiveTintColor: "#0d9488",
-        
         drawerInactiveTintColor: "#64748b",
-        
+
         drawerLabelStyle: {
           marginLeft: -10,
           fontWeight: "700",
@@ -45,56 +42,66 @@ export default function DrawerLayout() {
           paddingHorizontal: 12,
           marginVertical: 4,
           marginHorizontal: 8,
-        }
+        },
       }}
     >
       <Drawer.Screen
         name="index"
         options={{
           title: "Dashboard",
-          drawerIcon: ({ color }) => <Ionicons name="grid-outline" size={20} color={color} />,
+          drawerIcon: ({ color }) => (
+            <Ionicons name="grid-outline" size={20} color={color} />
+          ),
         }}
       />
       <Drawer.Screen
         name="add-expense"
         options={{
           title: "New Expense",
-          drawerIcon: ({ color }) => <Ionicons name="add-circle-outline" size={20} color={color} />,
+          drawerIcon: ({ color }) => (
+            <Ionicons name="add-circle-outline" size={20} color={color} />
+          ),
         }}
       />
       <Drawer.Screen
         name="categories"
         options={{
           title: "Categories",
-          drawerIcon: ({ color }) => <Ionicons name="pricetags-outline" size={20} color={color} />,
+          drawerIcon: ({ color }) => (
+            <Ionicons name="pricetags-outline" size={20} color={color} />
+          ),
         }}
       />
       <Drawer.Screen
         name="summary"
         options={{
           title: "Summary",
-          drawerIcon: ({ color }) => <Ionicons name="pie-chart-outline" size={20} color={color} />,
+          drawerIcon: ({ color }) => (
+            <Ionicons name="pie-chart-outline" size={20} color={color} />
+          ),
         }}
       />
       <Drawer.Screen
         name="settings"
         options={{
           title: "Setting",
-          drawerIcon: ({ color }) => <Ionicons name="settings-outline" size={20} color={color} />,
+          drawerIcon: ({ color }) => (
+            <Ionicons name="settings-outline" size={20} color={color} />
+          ),
         }}
       />
 
       <Drawer.Screen
         name="expense/[id]"
         options={{
-          drawerItemStyle: { display: 'none' },
-          headerTitle: "Edit Expense"
+          drawerItemStyle: { display: "none" },
+          headerTitle: "Edit Expense",
         }}
       />
       <Drawer.Screen
         name="category/[id]"
         options={{
-          drawerItemStyle: { display: 'none' },
+          drawerItemStyle: { display: "none" },
           headerShown: false,
         }}
       />

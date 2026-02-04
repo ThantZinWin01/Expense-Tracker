@@ -60,7 +60,7 @@ export default function SummaryScreen() {
       `SELECT IFNULL(SUM(amount), 0) as total, COUNT(id) as count
        FROM expenses
        WHERE user_id = ? AND date LIKE ?`,
-      [user.id, `${month}%`]
+      [user.id, `${month}%`],
     );
 
     setTotalSpent(stats?.total ?? 0);
@@ -73,21 +73,19 @@ export default function SummaryScreen() {
        WHERE e.user_id = ? AND e.date LIKE ?
        GROUP BY c.id
        ORDER BY total DESC`,
-      [user.id, `${month}%`]
+      [user.id, `${month}%`],
     );
-
     setByCategory(rows);
   };
 
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [user, month])
+    }, [user, month]),
   );
 
   const renderHeader = () => (
     <View style={styles.summaryStatsArea}>
-
       <View style={styles.monthRow}>
         <Pressable
           onPress={() => setMonth((m) => addMonths(m, -1))}
@@ -183,7 +181,8 @@ export default function SummaryScreen() {
           </View>
         }
         renderItem={({ item }) => {
-          const percentage = totalSpent > 0 ? (item.total / totalSpent) * 100 : 0;
+          const percentage =
+            totalSpent > 0 ? (item.total / totalSpent) * 100 : 0;
 
           return (
             <View style={styles.categoryCard}>
@@ -200,7 +199,9 @@ export default function SummaryScreen() {
               </View>
 
               <View style={styles.progressTrack}>
-                <View style={[styles.progressBar, { width: `${percentage}%` }]} />
+                <View
+                  style={[styles.progressBar, { width: `${percentage}%` }]}
+                />
               </View>
 
               <View style={styles.cardBottom}>

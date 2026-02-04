@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
 
-
 export default function RootLayout() {
   const [dbReady, setDbReady] = useState(false);
 

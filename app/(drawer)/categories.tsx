@@ -1,5 +1,6 @@
 import ActionSheetModal from "@/components/ActionSheetModal";
 import { AppToast } from "@/components/AppToast";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import { useAuth } from "@/context/AuthContext";
 import { getAll, getOne, run } from "@/lib/db/database";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,7 +34,10 @@ export default function CategoriesScreen() {
   const [name, setName] = useState("");
 
   const [menuVisible, setMenuVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
+  const [deleteVisible, setDeleteVisible] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -46,9 +50,8 @@ export default function CategoriesScreen() {
       `SELECT id, name FROM categories
        WHERE user_id = ? AND is_active = 1
        ORDER BY name ASC`,
-      [user.id]
+      [user.id],
     );
-
     setCategories(rows);
   };
 
@@ -56,7 +59,7 @@ export default function CategoriesScreen() {
     useCallback(() => {
       load();
       setName("");
-    }, [user])
+    }, [user]),
   );
 
   const normalizeCategoryName = (s: string) => s.trim().replace(/\s+/g, " ");
@@ -77,11 +80,14 @@ export default function CategoriesScreen() {
        WHERE user_id = ?
          AND is_active = 1
          AND lower(name) = lower(?)`,
-      [user.id, n]
+      [user.id, n],
     );
 
     if (exists) {
-      AppToast.error("Already exists", `"${n}" is already in your category list.`);
+      AppToast.error(
+        "Already exists",
+        `"${n}" is already in your category list.`,
+      );
       return;
     }
 
@@ -89,13 +95,12 @@ export default function CategoriesScreen() {
       run(
         `INSERT INTO categories (user_id, name, created_at, is_active)
          VALUES (?, ?, ?, 1)`,
-        [user.id, n, nowIso()]
+        [user.id, n, nowIso()],
       );
 
       setName("");
       Keyboard.dismiss();
       load();
-
       AppToast.success("Added", `"${n}" added successfully.`);
     } catch (e: any) {
       AppToast.error("Error", e?.message ?? "Could not add category.");
@@ -107,20 +112,29 @@ export default function CategoriesScreen() {
     setMenuVisible(true);
   };
 
-  const onDelete = () => {
+  const onAskDelete = () => {
+    if (!selectedCategory) return;
+    setMenuVisible(false);
+    setDeleteVisible(true);
+  };
+
+  const onConfirmDelete = () => {
     if (!selectedCategory) return;
 
     try {
-      run(`UPDATE categories SET is_active = 0 WHERE id = ?`, [selectedCategory.id]);
+      run(`UPDATE categories SET is_active = 0 WHERE id = ?`, [
+        selectedCategory.id,
+      ]);
 
       const deletedName = selectedCategory.name;
 
-      setMenuVisible(false);
+      setDeleteVisible(false);
       setSelectedCategory(null);
       load();
 
       AppToast.success("Deleted", `"${deletedName}" removed.`);
     } catch {
+      setDeleteVisible(false);
       AppToast.error("Error", "Could not delete category.");
     }
   };
@@ -142,7 +156,10 @@ export default function CategoriesScreen() {
 
       <SafeAreaView edges={["top"]} style={styles.headerArea}>
         <View style={styles.headerRow}>
-          <Pressable onPress={() => (navigation as any).openDrawer()} style={styles.menuBtn}>
+          <Pressable
+            onPress={() => (navigation as any).openDrawer()}
+            style={styles.menuBtn}
+          >
             <Ionicons name="menu" size={28} color="#0d9488" />
           </Pressable>
           <Text style={styles.headerTitle}>Categories</Text>
@@ -179,7 +196,11 @@ export default function CategoriesScreen() {
                   onPress={addCategory}
                   disabled={!name.trim()}
                 >
-                  <Ionicons name="add" size={28} color={name.trim() ? "#fff" : "#99bcba"} />
+                  <Ionicons
+                    name="add"
+                    size={28}
+                    color={name.trim() ? "#fff" : "#99bcba"}
+                  />
                 </Pressable>
               </View>
             </View>
@@ -196,12 +217,17 @@ export default function CategoriesScreen() {
         renderItem={({ item }) => (
           <View style={styles.glassItem}>
             <View style={styles.iconCircle}>
-              <Text style={styles.categoryLetter}>{item.name.charAt(0).toUpperCase()}</Text>
+              <Text style={styles.categoryLetter}>
+                {item.name.charAt(0).toUpperCase()}
+              </Text>
             </View>
 
             <Text style={styles.itemText}>{item.name}</Text>
 
-            <Pressable onPress={() => showOptions(item)} style={styles.menuButton}>
+            <Pressable
+              onPress={() => showOptions(item)}
+              style={styles.menuButton}
+            >
               <Ionicons name="ellipsis-horizontal" size={20} color="#0d9488" />
             </Pressable>
           </View>
@@ -216,10 +242,20 @@ export default function CategoriesScreen() {
           setSelectedCategory(null);
         }}
         onPrimary={onEdit}
-        onDanger={onDelete}
+        onDanger={onAskDelete}
         primaryText="Rename"
         dangerText="Delete"
         items={[{ label: "Name", value: selectedCategory?.name ?? "" }]}
+      />
+
+      <ConfirmDeleteModal
+        visible={deleteVisible}
+        categoryName={selectedCategory?.name}
+        message="This action cannot be undone."
+        dangerText="Delete"
+        cancelText="Cancel"
+        onCancel={() => setDeleteVisible(false)}
+        onConfirm={onConfirmDelete}
       />
     </View>
   );

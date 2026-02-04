@@ -2,7 +2,9 @@ import { AppToast } from "@/components/AppToast";
 import { useAuth } from "@/context/AuthContext";
 import { getAll, getOne, run } from "@/lib/db/database";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation, useRouter } from "expo-router";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -25,7 +27,8 @@ type Category = { id: number; name: string };
 
 const nowIso = () => new Date().toISOString();
 const pad2 = (n: number) => String(n).padStart(2, "0");
-const toYmd = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const toYmd = (d: Date) =>
+  `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 
 export default function AddExpenseScreen() {
   const { user } = useAuth();
@@ -93,17 +96,25 @@ export default function AddExpenseScreen() {
       loadCategories();
 
       return () => resetForm();
-    }, [user, resetForm])
+    }, [user, resetForm]),
   );
 
   const ensureDefaultCategories = () => {
-    const countRow = getOne<{ c: number }>(`SELECT COUNT(*) as c FROM categories WHERE user_id = ?`, [
-      user!.id,
-    ]);
+    const countRow = getOne<{ c: number }>(
+      `SELECT COUNT(*) as c FROM categories WHERE user_id = ?`,
+      [user!.id],
+    );
 
     if ((countRow?.c ?? 0) > 0) return;
 
-    const defaults = ["Food", "Transport", "Shopping", "Bill", "Health", "Other"];
+    const defaults = [
+      "Food",
+      "Transport",
+      "Shopping",
+      "Bill",
+      "Health",
+      "Other",
+    ];
 
     run("BEGIN");
     try {
@@ -111,7 +122,7 @@ export default function AddExpenseScreen() {
         run(
           `INSERT INTO categories (user_id, name, created_at, is_active)
            VALUES (?, ?, ?, 1)`,
-          [user!.id, name, nowIso()]
+          [user!.id, name, nowIso()],
         );
       }
       run("COMMIT");
@@ -125,7 +136,7 @@ export default function AddExpenseScreen() {
       `SELECT id, name FROM categories
        WHERE user_id = ? AND is_active = 1
        ORDER BY name ASC`,
-      [user!.id]
+      [user!.id],
     );
 
     setCategories(rows);
@@ -172,7 +183,15 @@ export default function AddExpenseScreen() {
         `INSERT INTO expenses
          (user_id, category_id, amount, date, note, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [user.id, categoryId, amountNumber, toYmd(dateObj), note.trim() || null, nowIso(), nowIso()]
+        [
+          user.id,
+          categoryId,
+          amountNumber,
+          toYmd(dateObj),
+          note.trim() || null,
+          nowIso(),
+          nowIso(),
+        ],
       );
 
       AppToast.success("Saved", "Expense added successfully.");
@@ -199,7 +218,10 @@ export default function AddExpenseScreen() {
 
       <SafeAreaView edges={["top"]} style={styles.headerArea}>
         <View style={styles.headerRow}>
-          <Pressable onPress={() => (navigation as any).openDrawer()} style={styles.menuBtn}>
+          <Pressable
+            onPress={() => (navigation as any).openDrawer()}
+            style={styles.menuBtn}
+          >
             <Ionicons name="menu" size={28} color="#0d9488" />
           </Pressable>
           <Text style={styles.headerTitle}>New Expense</Text>
@@ -211,8 +233,14 @@ export default function AddExpenseScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.glassCard}>
             <Text style={styles.inputLabel}>Amount (MMK)</Text>
 
@@ -225,12 +253,17 @@ export default function AddExpenseScreen() {
               keyboardType="decimal-pad"
               placeholder="0.00"
               placeholderTextColor="#99bcba"
-              style={[styles.amountInput, amountError && styles.amountInputError]}
+              style={[
+                styles.amountInput,
+                amountError && styles.amountInputError,
+              ]}
               autoFocus
               selectionColor="#0d9488"
             />
 
-            {amountError && <Text style={styles.amountHelperError}>{amountError}</Text>}
+            {amountError && (
+              <Text style={styles.amountHelperError}>{amountError}</Text>
+            )}
           </View>
 
           <Text style={styles.sectionTitle}>Category</Text>
@@ -241,7 +274,14 @@ export default function AddExpenseScreen() {
                 onPress={() => setCategoryId(c.id)}
                 style={[styles.chip, categoryId === c.id && styles.chipActive]}
               >
-                <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>{c.name}</Text>
+                <Text
+                  style={[
+                    styles.chipText,
+                    categoryId === c.id && styles.chipTextActive,
+                  ]}
+                >
+                  {c.name}
+                </Text>
               </Pressable>
             ))}
           </View>
@@ -282,7 +322,12 @@ export default function AddExpenseScreen() {
             <Pressable
               onPress={onCancel}
               disabled={saving}
-              style={({ pressed }) => [styles.btnBase, styles.cancelBtn, pressed && !saving && { opacity: 0.8 }, saving && { opacity: 0.7 }]}
+              style={({ pressed }) => [
+                styles.btnBase,
+                styles.cancelBtn,
+                pressed && !saving && { opacity: 0.8 },
+                saving && { opacity: 0.7 },
+              ]}
             >
               <Text style={styles.cancelText}>CANCEL</Text>
             </Pressable>
@@ -290,14 +335,26 @@ export default function AddExpenseScreen() {
             <Pressable
               onPress={onSaveExpense}
               disabled={saving}
-              style={({ pressed }) => [styles.btnBase, styles.saveBtn, pressed && !saving && { opacity: 0.9 }, saving && { opacity: 0.75 }]}
+              style={({ pressed }) => [
+                styles.btnBase,
+                styles.saveBtn,
+                pressed && !saving && { opacity: 0.9 },
+                saving && { opacity: 0.75 },
+              ]}
             >
-              <Text style={styles.saveBtnText}>{saving ? "SAVING..." : "SAVE"}</Text>
+              <Text style={styles.saveBtnText}>
+                {saving ? "SAVING..." : "SAVE"}
+              </Text>
             </Pressable>
           </View>
 
           {Platform.OS === "android" && showDatePicker && (
-            <DateTimePicker value={dateObj} mode="date" display="calendar" onChange={onDateChange} />
+            <DateTimePicker
+              value={dateObj}
+              mode="date"
+              display="calendar"
+              onChange={onDateChange}
+            />
           )}
 
           {Platform.OS === "ios" && (
@@ -335,7 +392,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f0fdfa" },
 
   headerArea: { paddingHorizontal: 20, paddingTop: 10 },
-  headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   menuBtn: { width: 40 },
   placeholder: { width: 40 },
   headerTitle: { color: "#134e4a", fontSize: 20, fontWeight: "900" },
@@ -502,7 +563,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 0,
+    paddingBottom: Platform.OS === "ios" ? 40 : 0,
     minHeight: 300,
   },
 
@@ -521,7 +582,7 @@ const styles = StyleSheet.create({
 
   pickerContainer: {
     height: 220,
-    justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
   },
 });

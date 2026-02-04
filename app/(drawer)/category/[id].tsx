@@ -37,13 +37,16 @@ export default function EditCategoryScreen() {
 
     const cat = getOne<{ name: string }>(
       "SELECT name FROM categories WHERE id = ? AND user_id = ?",
-      [id, user.id]
+      [id, user.id],
     );
 
     if (cat) setName(cat.name);
   }, [user, id]);
 
-  const canSave = useMemo(() => name.trim().length > 0 && !saving, [name, saving]);
+  const canSave = useMemo(
+    () => name.trim().length > 0 && !saving,
+    [name, saving],
+  );
 
   const onUpdate = () => {
     if (!user || !id) return;
@@ -63,7 +66,7 @@ export default function EditCategoryScreen() {
          AND is_active = 1
          AND lower(name) = lower(?)
          AND id != ?`,
-      [user.id, n, Number(id)]
+      [user.id, n, Number(id)],
     );
 
     if (exists) {
@@ -74,12 +77,14 @@ export default function EditCategoryScreen() {
     try {
       setSaving(true);
 
-      run("UPDATE categories SET name = ? WHERE id = ? AND user_id = ?", [n, id, user.id]);
+      run("UPDATE categories SET name = ? WHERE id = ? AND user_id = ?", [
+        n,
+        id,
+        user.id,
+      ]);
 
-      // ✅ Success toast
       AppToast.success("Updated", "Category renamed successfully.");
 
-      // Give user time to see toast
       setTimeout(() => {
         router.replace("/(drawer)/categories");
       }, 350);
@@ -96,7 +101,10 @@ export default function EditCategoryScreen() {
 
       <SafeAreaView edges={["top"]} style={styles.headerArea}>
         <View style={styles.header}>
-          <Pressable onPress={() => router.replace("/(drawer)/categories")} style={styles.backBtn}>
+          <Pressable
+            onPress={() => router.replace("/(drawer)/categories")}
+            style={styles.backBtn}
+          >
             <Ionicons name="chevron-back" size={28} color="#0d9488" />
           </Pressable>
 
@@ -110,8 +118,14 @@ export default function EditCategoryScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.glassCard}>
             <Text style={styles.label}>Category Name</Text>
 
@@ -126,13 +140,18 @@ export default function EditCategoryScreen() {
             />
 
             <Text style={styles.helperText}>
-              Keep it simple. Changes will update all existing expenses in this category.
+              Keep it simple. Changes will update all existing expenses in this
+              category.
             </Text>
           </View>
 
           <View style={styles.buttonRow}>
             <Pressable
-              style={({ pressed }) => [styles.btn, styles.cancelBtn, pressed && { opacity: 0.7 }]}
+              style={({ pressed }) => [
+                styles.btn,
+                styles.cancelBtn,
+                pressed && { opacity: 0.7 },
+              ]}
               onPress={() => router.replace("/(drawer)/categories")}
               disabled={saving}
             >
@@ -150,7 +169,9 @@ export default function EditCategoryScreen() {
               onPress={onUpdate}
               disabled={!canSave}
             >
-              <Text style={styles.saveText}>{saving ? "SAVING..." : "UPDATE"}</Text>
+              <Text style={styles.saveText}>
+                {saving ? "SAVING..." : "UPDATE"}
+              </Text>
             </Pressable>
           </View>
         </ScrollView>
