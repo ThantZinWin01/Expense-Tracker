@@ -290,7 +290,8 @@ export default function LoginScreen() {
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.fieldLabel}>Password</Text>
-                  <View style={styles.passwordContainer}>
+
+                  <View style={styles.inputWithIcon}>
                     <AppInput
                       placeholder="••••••••"
                       value={form.password}
@@ -300,6 +301,7 @@ export default function LoginScreen() {
                       helperError={helperErrors.password}
                       style={styles.passwordInput}
                     />
+
                     <Pressable style={styles.eyeBtn} onPress={() => setShowPass((v) => !v)}>
                       <Ionicons
                         name={showPass ? "eye-outline" : "eye-off-outline"}
@@ -313,7 +315,8 @@ export default function LoginScreen() {
                 {!isLogin && (
                   <View style={styles.inputGroup}>
                     <Text style={styles.fieldLabel}>Confirm Password</Text>
-                    <View style={styles.passwordContainer}>
+
+                    <View style={styles.inputWithIcon}>
                       <AppInput
                         placeholder="••••••••"
                         value={form.confirm}
@@ -323,10 +326,8 @@ export default function LoginScreen() {
                         helperError={helperErrors.confirm}
                         style={styles.passwordInput}
                       />
-                      <Pressable
-                        style={styles.eyeBtn}
-                        onPress={() => setShowConfirm((v) => !v)}
-                      >
+
+                      <Pressable style={styles.eyeBtn} onPress={() => setShowConfirm((v) => !v)}>
                         <Ionicons
                           name={showConfirm ? "eye-outline" : "eye-off-outline"}
                           size={22}
@@ -416,11 +417,11 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  passwordContainer: { justifyContent: "center" },
   eyeBtn: {
     position: "absolute",
     right: 15,
-    height: "100%",
+    top: 0,
+    height: 54,
     justifyContent: "center",
     zIndex: 10,
   },
@@ -428,6 +429,11 @@ const styles = StyleSheet.create({
   passwordInput: {
     paddingRight: 52,
   },
+
+  inputWithIcon: {
+    position: "relative",
+  },
+
 
   buttonContainer: { marginTop: 6 },
   actionButton: { backgroundColor: "#0d9488", height: 56, borderRadius: 12 },

@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: "#0f172a",
         fontWeight: "500",
+        minHeight: 54,
     },
 
     inputFocused: {
