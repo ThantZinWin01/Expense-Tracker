@@ -48,6 +48,7 @@ export default function LoginScreen() {
     Partial<Record<Field, ReturnType<typeof setTimeout>>>
   >({});
 
+  // Removes inline error & clear
   const clearError = (field: Field) => {
     setErrors((prev) => {
       if (!prev[field]) return prev;
@@ -64,6 +65,7 @@ export default function LoginScreen() {
   };
 
   const showError = (field: Field, msg: string) => {
+    // Shows inline error and auto-clears after 3s
     setErrors((prev) => ({ ...prev, [field]: msg }));
 
     const old = timersRef.current[field];
@@ -80,6 +82,7 @@ export default function LoginScreen() {
   };
 
   const clearHelperError = (field: Field) => {
+    // Removes helper error & clears
     setHelperErrors((prev) => {
       if (!prev[field]) return prev;
       const next = { ...prev };
@@ -95,6 +98,7 @@ export default function LoginScreen() {
   };
 
   const showHelperError = (field: Field, msg: string) => {
+    // Shows logic error and auto-clears after 3s
     setHelperErrors((prev) => ({ ...prev, [field]: msg }));
 
     const old = helperTimersRef.current[field];
@@ -111,6 +115,7 @@ export default function LoginScreen() {
   };
 
   const clearAllErrors = () => {
+    // Hard reset for both error types & timer cleanup (used before validation/mode switch)
     setErrors({});
     Object.values(timersRef.current).forEach((t) => t && clearTimeout(t));
     timersRef.current = {};
@@ -121,6 +126,7 @@ export default function LoginScreen() {
   };
 
   useEffect(() => {
+    // Prevent timer leaks when leaving the screen
     return () => {
       Object.values(timersRef.current).forEach((t) => t && clearTimeout(t));
       Object.values(helperTimersRef.current).forEach(
@@ -130,6 +136,7 @@ export default function LoginScreen() {
   }, []);
 
   const setField = (field: Field, value: string) => {
+    // Updates one field + clears errors for that field
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) clearError(field);
     if (helperErrors[field]) clearHelperError(field);
@@ -188,6 +195,7 @@ export default function LoginScreen() {
   };
 
   const placeAuthError = (msg: string) => {
+    // Maps server/auth errors for better feedback
     const m = msg.toLowerCase();
 
     if (m.includes("username already exists"))
@@ -212,12 +220,13 @@ export default function LoginScreen() {
 
       if (isLogin) {
         const userData = await login(username, password);
-        setUser(userData);
+        setUser(userData); // triggers redirect to drawer via RootNavigator
         return;
       }
 
       await register(username, email, password);
 
+      // After register, switch back to login and clear sensitive fields
       setIsLogin(true);
       setForm((prev) => ({
         username: prev.username.trim(),
@@ -236,6 +245,7 @@ export default function LoginScreen() {
   };
 
   const onSwitchMode = () => {
+    // Toggles between Login/Register and resets UI state + errors
     setIsLogin((v) => !v);
     setLoading(false);
     setShowPass(false);
@@ -259,11 +269,13 @@ export default function LoginScreen() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
+            {/* Brand header */}
             <View style={styles.brandSection}>
               <Text style={styles.brandMain}>Expense</Text>
               <Text style={styles.brandSub}>Tracker</Text>
             </View>
 
+            {/* Form Card */}
             <View style={styles.formWrapper}>
               <View style={styles.authCard}>
                 <View style={styles.cardHeader}>
@@ -284,6 +296,7 @@ export default function LoginScreen() {
                   />
                 </View>
 
+                {/* Email only for Register */}
                 {!isLogin && (
                   <View style={styles.inputGroup}>
                     <Text style={styles.fieldLabel}>Email Address</Text>
@@ -299,6 +312,7 @@ export default function LoginScreen() {
                   </View>
                 )}
 
+                {/* Password with show/hide */}
                 <View style={styles.inputGroup}>
                   <Text style={styles.fieldLabel}>Password</Text>
 
@@ -326,6 +340,7 @@ export default function LoginScreen() {
                   </View>
                 </View>
 
+                {/* Confirm only for Register */}
                 {!isLogin && (
                   <View style={styles.inputGroup}>
                     <Text style={styles.fieldLabel}>Confirm Password</Text>
@@ -355,6 +370,7 @@ export default function LoginScreen() {
                   </View>
                 )}
 
+                {/* Submit button / loading */}
                 <View style={styles.buttonContainer}>
                   {loading ? (
                     <ActivityIndicator color="#0d9488" size="large" />
@@ -367,6 +383,7 @@ export default function LoginScreen() {
                   )}
                 </View>
 
+                {/* Switch Login/Register */}
                 <Pressable onPress={onSwitchMode} style={styles.switchBtn}>
                   <Text style={styles.switchText}>
                     {isLogin ? "Don't have an account? " : "Back to "}

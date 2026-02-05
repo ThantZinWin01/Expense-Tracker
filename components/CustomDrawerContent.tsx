@@ -1,22 +1,30 @@
-import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
+import {
+  DrawerContentScrollView,
+  DrawerItemList,
+} from "@react-navigation/drawer";
 import { Platform, StyleSheet, Text, View } from "react-native";
 
 export default function CustomDrawerContent(props: any) {
   return (
     <View style={styles.container}>
-
+      {/* App header section */}
       <View style={styles.drawerHeader}>
         <Text style={styles.brandMain}>Expense</Text>
         <Text style={styles.brandSub}>Tracker</Text>
         <View style={styles.accentLine} />
       </View>
 
-      <DrawerContentScrollView {...props} contentContainerStyle={styles.scrollContent}>
+      {/* Scrollable drawer items */}
+      <DrawerContentScrollView
+        {...props}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.listWrapper}>
           <DrawerItemList {...props} />
         </View>
       </DrawerContentScrollView>
 
+      {/* Drawer footer */}
       <View style={styles.drawerFooter}>
         <Text style={styles.versionText}>v1.0.0</Text>
       </View>
@@ -25,10 +33,9 @@ export default function CustomDrawerContent(props: any) {
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
 
   drawerHeader: {
@@ -44,15 +51,15 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "300",
     color: "#0f172a",
-    fontStyle: 'italic',
-    fontFamily: Platform.OS === 'ios' ? 'Times New Roman' : 'serif',
+    fontStyle: "italic",
+    fontFamily: Platform.OS === "ios" ? "Times New Roman" : "serif",
   },
 
   brandSub: {
     fontSize: 12,
     fontWeight: "800",
     color: "#0d9488",
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 4,
     marginTop: -5,
     marginLeft: 5,
@@ -68,7 +75,7 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingTop: 20
+    paddingTop: 20,
   },
 
   listWrapper: {
@@ -77,7 +84,7 @@ const styles = StyleSheet.create({
 
   drawerFooter: {
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: "#f8fafc",
   },
@@ -86,7 +93,6 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     fontSize: 11,
     fontWeight: "600",
-    letterSpacing: 1
-  }
-
+    letterSpacing: 1,
+  },
 });

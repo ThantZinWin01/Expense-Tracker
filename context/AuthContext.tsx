@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 const nowIso = () => new Date().toISOString();
 
-// CASE-SENSITIVE 
+// CASE-SENSITIVE
 function normalizeUsernameExact(username: string) {
   return username.trim();
 }
@@ -30,13 +30,17 @@ function normalizeEmail(email: string) {
 }
 
 async function hashPassword(password: string) {
-  return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, password);
+  return Crypto.digestStringAsync(
+    Crypto.CryptoDigestAlgorithm.SHA256,
+    password,
+  );
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isBooting, setIsBooting] = useState(true);
 
+  // Session Recovery
   useEffect(() => {
     (async () => {
       try {
@@ -44,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (savedId) {
           const row = getOne<AuthUser>(
             "SELECT id, username, email FROM users WHERE id = ?",
-            [Number(savedId)]
+            [Number(savedId)],
           );
           if (row) setUser(row);
         }
@@ -54,7 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  const register = async (username: string, email: string, password: string) => {
+  // Registration
+  const register = async (
+    username: string,
+    email: string,
+    password: string,
+  ) => {
     const u = normalizeUsernameExact(username);
     const e = normalizeEmail(email);
 
@@ -65,11 +74,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     //  pre-check duplicates account
     const existsU = getOne<{ id: number }>(
       "SELECT id FROM users WHERE username = ? COLLATE BINARY",
-      [u]
+      [u],
     );
     if (existsU) throw new Error("Username already exists.");
 
-    const existsE = getOne<{ id: number }>("SELECT id FROM users WHERE email = ?", [e]);
+    const existsE = getOne<{ id: number }>(
+      "SELECT id FROM users WHERE email = ?",
+      [e],
+    );
     if (existsE) throw new Error("Email already exists.");
 
     const hash = await hashPassword(password);
@@ -77,24 +89,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       run(
         "INSERT INTO users (username, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
-        [u, e, hash, nowIso()]
+        [u, e, hash, nowIso()],
       );
     } catch (err: any) {
       const msg = String(err?.message ?? "");
-      if (msg.toLowerCase().includes("users.username")) throw new Error("Username already exists.");
-      if (msg.toLowerCase().includes("users.email")) throw new Error("Email already exists.");
+      if (msg.toLowerCase().includes("users.username"))
+        throw new Error("Username already exists.");
+      if (msg.toLowerCase().includes("users.email"))
+        throw new Error("Email already exists.");
       throw new Error("Failed to create account.");
     }
 
     const created = getOne<AuthUser>(
       "SELECT id, username, email FROM users WHERE username = ? COLLATE BINARY",
-      [u]
+      [u],
     );
     if (!created) throw new Error("Failed to create account.");
 
     return created;
   };
 
+  // Secure Login
   const login = async (username: string, password: string) => {
     const u = normalizeUsernameExact(username);
 
@@ -103,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const row = getOne<AuthUser & { password_hash: string }>(
       "SELECT id, username, email, password_hash FROM users WHERE username = ? COLLATE BINARY",
-      [u]
+      [u],
     );
 
     if (!row) throw new Error("User not found");

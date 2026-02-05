@@ -48,6 +48,7 @@ export default function AddExpenseScreen() {
 
   const [saving, setSaving] = useState(false);
 
+  // Uses a custom header, hide default ones
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
@@ -57,6 +58,7 @@ export default function AddExpenseScreen() {
     return Number.isFinite(n) ? n : 0;
   }, [amount]);
 
+  // Shows amount error and auto-clears after 3 seconds
   const showAmountError = (msg: string) => {
     setAmountError(msg);
 
@@ -70,6 +72,7 @@ export default function AddExpenseScreen() {
     }, 3000);
   };
 
+  // Clears error immediately + cancels pending timer
   const clearAmountError = () => {
     if (amountErrorTimer.current) {
       clearTimeout(amountErrorTimer.current);
@@ -78,6 +81,7 @@ export default function AddExpenseScreen() {
     setAmountError(null);
   };
 
+  // Resets form state after save/cancel or when leaving screen
   const resetForm = useCallback(() => {
     setAmount("");
     setNote("");
@@ -88,6 +92,7 @@ export default function AddExpenseScreen() {
     setSaving(false);
   }, []);
 
+  // Loads categories when screen becomes active
   useFocusEffect(
     useCallback(() => {
       if (!user) return;
@@ -99,6 +104,7 @@ export default function AddExpenseScreen() {
     }, [user, resetForm]),
   );
 
+  // Creates starter categories only if user has none (first-time setup)
   const ensureDefaultCategories = () => {
     const countRow = getOne<{ c: number }>(
       `SELECT COUNT(*) as c FROM categories WHERE user_id = ?`,
@@ -131,6 +137,7 @@ export default function AddExpenseScreen() {
     }
   };
 
+  // Loads active categories and auto-selects the first one if none selected
   const loadCategories = () => {
     const rows = getAll<Category>(
       `SELECT id, name FROM categories
@@ -146,11 +153,13 @@ export default function AddExpenseScreen() {
     }
   };
 
+  // Opens date picker and hides keyboard
   const handleDatePress = () => {
     Keyboard.dismiss();
     setShowDatePicker(true);
   };
 
+  // Handles platform differences
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (Platform.OS === "android" && event.type === "dismissed") {
       setShowDatePicker(false);
@@ -161,6 +170,7 @@ export default function AddExpenseScreen() {
     if (Platform.OS === "android") setShowDatePicker(false);
   };
 
+  // Validates input, inserts into SQLite, then navigates back to list
   const onSaveExpense = () => {
     if (!user) return;
     if (saving) return;
@@ -207,6 +217,7 @@ export default function AddExpenseScreen() {
     }
   };
 
+  // Cancels create flow and returns to previous screen
   const onCancel = () => {
     resetForm();
     router.back();

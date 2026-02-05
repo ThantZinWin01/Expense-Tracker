@@ -29,8 +29,12 @@ type ExpenseRow = {
 
 const nowIso = () => new Date().toISOString();
 const pad2 = (n: number) => String(n).padStart(2, "0");
+
+// Date -> "YYYY-MM-DD" (matches DB date format)
 const toYmd = (d: Date) =>
   `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+// "YYYY-MM-DD" -> Date (used for loading saved DB date into DateTimePicker)
 const fromYmd = (ymd: string) => {
   const [y, m, d] = ymd.split("-").map(Number);
   return new Date(y, (m ?? 1) - 1, d ?? 1);
@@ -53,19 +57,23 @@ export default function ExpenseDetailScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<number | null>(null);
 
+  // Uses a custom header, hide default ones
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  // Converts input string -> number safely
   const amountNumber = useMemo(() => {
     const n = Number(amount);
     return Number.isFinite(n) ? n : 0;
   }, [amount]);
 
+  // Loads expense + categories when user is ready or the expenseId changes
   useEffect(() => {
     if (user) load();
   }, [user, expenseId]);
 
+  // Fetches the expense by id + user_id, then fills the form state
   const load = () => {
     setLoading(true);
     try {
@@ -74,6 +82,7 @@ export default function ExpenseDetailScreen() {
         [expenseId, user!.id],
       );
 
+      // If invalid id or not owned by user, go back
       if (!exp) {
         router.back();
         return;
@@ -94,6 +103,7 @@ export default function ExpenseDetailScreen() {
     }
   };
 
+  // Validates input, updates DB, shows toast, then navigates back
   const onUpdate = () => {
     if (saving) return;
 
@@ -134,6 +144,7 @@ export default function ExpenseDetailScreen() {
     }
   };
 
+  // Loading state while fetching expense details
   if (loading) {
     return (
       <View style={[styles.mainContainer, styles.center]}>

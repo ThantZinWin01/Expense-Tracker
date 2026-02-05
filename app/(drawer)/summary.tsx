@@ -21,15 +21,18 @@ type CategorySum = {
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
+// Converts Date -> "YYYY-MM" for month filtering in SQL
 const monthKeyFromDate = (d: Date) =>
   `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
 
+// Moves monthKey forward/backward by diff months (handles year change automatically)
 const addMonths = (monthKey: string, diff: number) => {
   const [y, m] = monthKey.split("-").map(Number);
   const d = new Date(y, m - 1 + diff, 1);
   return monthKeyFromDate(d);
 };
 
+// Converts "YYYY-MM" -> friendly label like "January 2026"
 const monthLabelFromKey = (monthKey: string) => {
   const [y, m] = monthKey.split("-").map(Number);
   const d = new Date(y, m - 1, 1);
@@ -47,12 +50,15 @@ export default function SummaryScreen() {
   const [transactionCount, setTransactionCount] = useState(0);
   const [byCategory, setByCategory] = useState<CategorySum[]>([]);
 
+  // Blocks navigating past the current month (no future data)
   const canGoNext = month < currentMonthKey;
 
+  // Uses a custom header, hide default ones
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  // Loads month summary : spent, transaction count, category totals
   const load = () => {
     if (!user) return;
 
@@ -78,6 +84,7 @@ export default function SummaryScreen() {
     setByCategory(rows);
   };
 
+  // Refreshes summary when screen focuses or selected month changes
   useFocusEffect(
     useCallback(() => {
       load();

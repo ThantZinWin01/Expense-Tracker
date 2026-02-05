@@ -21,6 +21,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 type Category = { id: number; name: string };
 
+// Shared timestamp helper for DB inserts
 function nowIso() {
   return new Date().toISOString();
 }
@@ -39,10 +40,12 @@ export default function CategoriesScreen() {
   );
   const [deleteVisible, setDeleteVisible] = useState(false);
 
+  // Uses a custom header, hide default ones
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  // Loads active categories for the current user
   const load = () => {
     if (!user) return;
 
@@ -55,6 +58,7 @@ export default function CategoriesScreen() {
     setCategories(rows);
   };
 
+  // Refresh list when screen is focused and reset input box
   useFocusEffect(
     useCallback(() => {
       load();
@@ -62,8 +66,10 @@ export default function CategoriesScreen() {
     }, [user]),
   );
 
+  // Trims and collapses multiple spaces to avoid duplicates
   const normalizeCategoryName = (s: string) => s.trim().replace(/\s+/g, " ");
 
+  // Validates, checks duplicates, then inserts a new category
   const addCategory = () => {
     if (!user) return;
 
@@ -107,17 +113,20 @@ export default function CategoriesScreen() {
     }
   };
 
+  // Opens action sheet for the selected category
   const showOptions = (item: Category) => {
     setSelectedCategory(item);
     setMenuVisible(true);
   };
 
+  // Closes action sheet and opens confirmation modal
   const onAskDelete = () => {
     if (!selectedCategory) return;
     setMenuVisible(false);
     setDeleteVisible(true);
   };
 
+  // Soft deletes by setting is_active=0, then refreshes list
   const onConfirmDelete = () => {
     if (!selectedCategory) return;
 
@@ -139,6 +148,7 @@ export default function CategoriesScreen() {
     }
   };
 
+  // Navigates to edit screen with selected category id
   const onEdit = () => {
     if (!selectedCategory) return;
 

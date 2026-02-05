@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// Cleans user input: trim + remove extra spaces
 const normalizeCategoryName = (s: string) => s.trim().replace(/\s+/g, " ");
 
 export default function EditCategoryScreen() {
@@ -28,10 +29,12 @@ export default function EditCategoryScreen() {
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Uses a custom header, hide default ones
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  // Loads the category name by id when screen opens
   useEffect(() => {
     if (!user || !id) return;
 
@@ -43,11 +46,13 @@ export default function EditCategoryScreen() {
     if (cat) setName(cat.name);
   }, [user, id]);
 
+  // Enables Save only when input is not empty and not already saving
   const canSave = useMemo(
     () => name.trim().length > 0 && !saving,
     [name, saving],
   );
 
+  // Validates, prevents duplicates, updates DB, then navigates back
   const onUpdate = () => {
     if (!user || !id) return;
     if (saving) return;

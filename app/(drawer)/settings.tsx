@@ -13,10 +13,12 @@ export default function SettingsScreen() {
 
   const [logoutVisible, setLogoutVisible] = useState(false);
 
+  // Uses a custom header, hide default ones
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  // Executes logout, closes modal, then redirects to login screen
   const handleLogout = async () => {
     await logout();
     setLogoutVisible(false);
@@ -43,6 +45,7 @@ export default function SettingsScreen() {
         </View>
       </SafeAreaView>
 
+      {/* Read-only account details from AuthContext */}
       <View style={styles.content}>
         <Text style={styles.sectionLabel}>Account Information</Text>
 
@@ -72,6 +75,7 @@ export default function SettingsScreen() {
 
         <Text style={[styles.sectionLabel, { marginTop: 35 }]}>App Action</Text>
 
+        {/* Action card: sign out triggers confirmation modal */}
         <View style={styles.glassCard}>
           <Pressable
             style={({ pressed }) => [

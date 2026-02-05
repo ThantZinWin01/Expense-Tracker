@@ -3,7 +3,6 @@ import * as SQLite from "expo-sqlite";
 export const db = SQLite.openDatabaseSync("expense_tracker.db");
 
 export function initDb() {
-
   db.execSync("PRAGMA foreign_keys = ON;");
 
   db.execSync(`
@@ -66,21 +65,22 @@ export function initDb() {
   `);
 }
 
-// SQL injection prevention 
+// SQL injection prevention
 export function run(sql: string, params: (string | number | null)[] = []) {
   db.runSync(sql, params);
 }
 
+// For Security & Convenience
 export function getOne<T>(
   sql: string,
-  params: (string | number | null)[] = []
+  params: (string | number | null)[] = [],
 ): T | null {
   return db.getFirstSync<T>(sql, params) ?? null;
 }
 
 export function getAll<T>(
   sql: string,
-  params: (string | number | null)[] = []
+  params: (string | number | null)[] = [],
 ): T[] {
   return db.getAllSync<T>(sql, params) as T[];
 }

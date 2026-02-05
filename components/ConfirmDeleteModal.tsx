@@ -21,6 +21,7 @@ export default function ConfirmDeleteModal({
   onCancel,
   onConfirm,
 }: Props) {
+  // Builds a dynamic title based on category or fallback
   const title = categoryName?.trim()
     ? `Delete ${categoryName.trim()}?`
     : "Delete transaction?";
@@ -34,6 +35,7 @@ export default function ConfirmDeleteModal({
       statusBarTranslucent
     >
       <View style={styles.overlay}>
+        {/* Tap outside to cancel */}
         <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
 
         <View style={styles.card}>
@@ -46,10 +48,12 @@ export default function ConfirmDeleteModal({
           </View>
 
           <View style={styles.content}>
+            {/* Warning message */}
             <Text style={styles.message}>{message}</Text>
           </View>
 
           <View style={styles.actions}>
+            {/* Cancel action */}
             <Pressable
               onPress={onCancel}
               style={({ pressed }) => [
@@ -61,6 +65,7 @@ export default function ConfirmDeleteModal({
               <Text style={styles.btnCancelText}>{cancelText}</Text>
             </Pressable>
 
+            {/* Confirm action */}
             <Pressable
               onPress={onConfirm}
               style={({ pressed }) => [

@@ -40,16 +40,19 @@ export default function ExpensesScreen() {
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
 
+  // Uses a custom header, hide default ones
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  // Reload list whenever screen focuses or filter changes
   useFocusEffect(
     useCallback(() => {
       loadExpenses();
     }, [filter, user]),
   );
 
+  // Builds date range filter SQL and fetches expenses joined with category name
   const loadExpenses = () => {
     if (!user) return;
     let where = "";
@@ -64,9 +67,10 @@ export default function ExpensesScreen() {
         `${new Date().getFullYear()}-${pad2(new Date().getMonth() + 1)}%`,
       );
     } else if (filter === "this week") {
+      // Monday–Sunday week range
       const now = new Date();
       const day = now.getDay();
-      const diff = day === 0 ? -6 : 1 - day;
+      const diff = day === 0 ? -6 : 1 - day; // Sunday -> go back 6 days, otherwise go back to Monday
       const start = new Date(now);
       start.setDate(now.getDate() + diff);
       const end = new Date(start);
@@ -86,21 +90,25 @@ export default function ExpensesScreen() {
     setExpenses(rows);
   };
 
+  // Navigates to Summary screen
   const goSummary = () => {
     router.push("/(drawer)/summary");
   };
 
+  // Opens action sheet for selected transaction
   const showOptions = (item: Expense) => {
     setSelectedExpense(item);
     setMenuVisible(true);
   };
 
+  // Goes to expense detail screen for editing
   const onEdit = () => {
     if (!selectedExpense) return;
     setMenuVisible(false);
     router.push(`/expense/${selectedExpense.id}`);
   };
 
+  // Text shown when no results for the current filter
   const emptyCopy = useMemo(() => {
     if (filter === "today") {
       return {
@@ -123,16 +131,19 @@ export default function ExpensesScreen() {
     };
   }, [filter]);
 
+  // Quick navigation to add-expense form
   const goAddExpense = () => {
     router.push("/(drawer)/add-expense");
   };
 
+  // Opens delete confirmation modal
   const onDelete = () => {
     if (!selectedExpense) return;
     setMenuVisible(false);
     setConfirmDeleteVisible(true);
   };
 
+  // Deletes expense, refreshes list, and clears selection
   const confirmDelete = () => {
     if (!selectedExpense) return;
 
