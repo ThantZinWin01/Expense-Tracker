@@ -1,8 +1,8 @@
 import { useAuth } from "@/context/AuthContext";
 import { getAll, getOne } from "@/lib/db/database";
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation } from "expo-router";
+import { DrawerActions, useFocusEffect } from "@react-navigation/native";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import {
   FlatList,
@@ -42,6 +42,9 @@ const monthLabelFromKey = (monthKey: string) => {
 export default function SummaryScreen() {
   const { user } = useAuth();
   const navigation = useNavigation();
+
+  const { from } = useLocalSearchParams<{ from?: string }>();
+  const showBack = from === "dashboard";
 
   const currentMonthKey = useMemo(() => monthKeyFromDate(new Date()), []);
   const [month, setMonth] = useState(() => monthKeyFromDate(new Date()));
@@ -151,11 +154,23 @@ export default function SummaryScreen() {
       <SafeAreaView edges={["top"]} style={styles.headerArea}>
         <View style={styles.headerRow}>
           <Pressable
-            onPress={() => (navigation as any).openDrawer()}
+            onPress={() => {
+              if (showBack) {
+                (navigation as any).goBack();
+                return;
+              }
+              // open drawer
+              (navigation as any).dispatch(DrawerActions.openDrawer());
+            }}
             style={styles.menuBtn}
           >
-            <Ionicons name="menu" size={28} color="#0d9488" />
+            <Ionicons
+              name={showBack ? "arrow-back" : "menu"}
+              size={28}
+              color="#0d9488"
+            />
           </Pressable>
+
 
           <Text style={styles.headerTitle}>Summary</Text>
           <View style={styles.placeholder} />
@@ -314,8 +329,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 24,
     padding: 24,
-    borderWidth: 1,
-    borderColor: "rgba(13, 148, 136, 0.1)",
+    borderWidth: 1.6,
+    borderColor: "rgba(13, 148, 136, 0.22)",
     shadowColor: "#0d9488",
   },
 

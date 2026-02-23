@@ -69,7 +69,7 @@ export default function CategoriesScreen() {
   // Trims and collapses multiple spaces to avoid duplicates
   const normalizeCategoryName = (s: string) => s.trim().replace(/\s+/g, " ");
 
-  // Validates, checks duplicates, then inserts a new category
+  // Validates, checks duplicates, then inserts OR restores a soft-deleted category
   const addCategory = () => {
     if (!user) return;
 
@@ -81,15 +81,16 @@ export default function CategoriesScreen() {
       return;
     }
 
-    const exists = getOne<{ id: number }>(
+    // 1) If an ACTIVE category already exists (case-insensitive) => block
+    const activeExists = getOne<{ id: number }>(
       `SELECT id FROM categories
-       WHERE user_id = ?
-         AND is_active = 1
-         AND lower(name) = lower(?)`,
+     WHERE user_id = ?
+       AND is_active = 1
+       AND lower(name) = lower(?)`,
       [user.id, n],
     );
 
-    if (exists) {
+    if (activeExists) {
       AppToast.error(
         "Already exists",
         `"${n}" is already in your category list.`,
@@ -97,10 +98,35 @@ export default function CategoriesScreen() {
       return;
     }
 
+    // 2) If an INACTIVE (soft-deleted) one exists => RESTORE it
+    const inactive = getOne<{ id: number }>(
+      `SELECT id FROM categories
+     WHERE user_id = ?
+       AND is_active = 0
+       AND lower(name) = lower(?)`,
+      [user.id, n],
+    );
+
     try {
+      if (inactive) {
+        run(
+          `UPDATE categories
+         SET name = ?, is_active = 1
+         WHERE id = ? AND user_id = ?`,
+          [n, inactive.id, user.id],
+        );
+
+        setName("");
+        Keyboard.dismiss();
+        load();
+        AppToast.success("Restored", `"${n}" restored successfully.`);
+        return;
+      }
+
+      // 3) Otherwise insert new (safe)
       run(
         `INSERT INTO categories (user_id, name, created_at, is_active)
-         VALUES (?, ?, ?, 1)`,
+       VALUES (?, ?, ?, 1)`,
         [user.id, n, nowIso()],
       );
 

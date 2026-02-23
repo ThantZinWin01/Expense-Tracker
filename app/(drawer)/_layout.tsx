@@ -80,7 +80,21 @@ export default function DrawerLayout() {
             <Ionicons name="pie-chart-outline" size={20} color={color} />
           ),
         }}
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            // Stop default behavior (which merges params)
+            e.preventDefault();
+
+            // Navigate to summary but REPLACE params (clear "from")
+            navigation.navigate({
+              name: "summary",
+              params: {},      // or { from: undefined }
+              merge: false,
+            });
+          },
+        })}
       />
+
       <Drawer.Screen
         name="settings"
         options={{

@@ -1,3 +1,4 @@
+import { toastConfig } from "@/components/AppToast";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { initDb } from "@/lib/db/database";
 import { Stack } from "expo-router";
@@ -20,7 +21,7 @@ export default function RootLayout() {
     <AuthProvider>
       <>
         <RootNavigator />
-        <Toast />
+        <Toast config={toastConfig} />
       </>
     </AuthProvider>
   );

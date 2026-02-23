@@ -2,11 +2,15 @@ import { AppToast } from "@/components/AppToast";
 import { useAuth } from "@/context/AuthContext";
 import { getAll, getOne, run } from "@/lib/db/database";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -71,6 +75,7 @@ export default function ExpenseDetailScreen() {
   // Loads expense + categories when user is ready or the expenseId changes
   useEffect(() => {
     if (user) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, expenseId]);
 
   // Fetches the expense by id + user_id, then fills the form state
@@ -103,8 +108,27 @@ export default function ExpenseDetailScreen() {
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleDatePress = () => {
+    Keyboard.dismiss();
+    setShowDatePicker(true);
+  };
+
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (Platform.OS === "android" && event.type === "dismissed") {
+      setShowDatePicker(false);
+      return;
+    }
+
+    if (selectedDate) setDateObj(selectedDate);
+    if (Platform.OS === "android") setShowDatePicker(false);
+  };
+
+>>>>>>> cf2e8c1 (Latest Updated Code)
   // Validates input, updates DB, shows toast, then navigates back
   const onUpdate = () => {
+    if (!user) return;
     if (saving) return;
 
     if (amountNumber <= 0) {
@@ -130,14 +154,14 @@ export default function ExpenseDetailScreen() {
           note.trim() || null,
           nowIso(),
           expenseId,
-          user!.id,
+          user.id,
         ],
       );
 
       AppToast.success("Updated", "Expense updated successfully.");
 
       setTimeout(() => router.back(), 350);
-    } catch (error) {
+    } catch {
       AppToast.error("Error", "Failed to update expense.");
     } finally {
       setSaving(false);
@@ -148,7 +172,7 @@ export default function ExpenseDetailScreen() {
   if (loading) {
     return (
       <View style={[styles.mainContainer, styles.center]}>
-        <Text style={{ color: "#0d9488" }}>Loading...</Text>
+        <Text style={{ color: "#0d9488", fontWeight: "800" }}>Loading...</Text>
       </View>
     );
   }
@@ -218,10 +242,7 @@ export default function ExpenseDetailScreen() {
           <Text style={[styles.label, { marginTop: 24 }]}>
             Transaction Date
           </Text>
-          <Pressable
-            style={styles.dateBtn}
-            onPress={() => setShowDatePicker(true)}
-          >
+          <Pressable style={styles.dateBtn} onPress={handleDatePress}>
             <Ionicons
               name="calendar"
               size={20}
@@ -231,16 +252,39 @@ export default function ExpenseDetailScreen() {
             <Text style={styles.dateText}>{toYmd(dateObj)}</Text>
           </Pressable>
 
-          {showDatePicker && (
+          {/* ANDROID: inline calendar */}
+          {Platform.OS === "android" && showDatePicker && (
             <DateTimePicker
               value={dateObj}
               mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={(e, d) => {
-                if (Platform.OS !== "ios") setShowDatePicker(false);
-                if (d) setDateObj(d);
-              }}
+              display="calendar"
+              onChange={onDateChange}
             />
+          )}
+
+          {/* IOS: modal bottom sheet */}
+          {Platform.OS === "ios" && (
+            <Modal transparent visible={showDatePicker} animationType="slide">
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Pressable onPress={() => setShowDatePicker(false)}>
+                      <Text style={styles.doneText}>Done</Text>
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.pickerContainer}>
+                    <DateTimePicker
+                      value={dateObj}
+                      mode="date"
+                      display="spinner"
+                      onChange={onDateChange}
+                      textColor="#000000"
+                    />
+                  </View>
+                </View>
+              </View>
+            </Modal>
           )}
 
           <Text style={[styles.label, { marginTop: 24 }]}>Note (Optional)</Text>
@@ -260,6 +304,7 @@ export default function ExpenseDetailScreen() {
                 styles.btn,
                 styles.cancelBtn,
                 pressed && { opacity: 0.7 },
+                saving && { opacity: 0.7 },
               ]}
               onPress={() => router.back()}
               disabled={saving}
@@ -272,7 +317,7 @@ export default function ExpenseDetailScreen() {
                 styles.btn,
                 styles.saveBtn,
                 pressed && { opacity: 0.9 },
-                saving && { opacity: 0.7 },
+                saving && { opacity: 0.75 },
               ]}
               onPress={onUpdate}
               disabled={saving}
@@ -282,6 +327,8 @@ export default function ExpenseDetailScreen() {
               </Text>
             </Pressable>
           </View>
+
+          <View style={{ height: 20 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -297,6 +344,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   headerArea: {
     paddingHorizontal: 20,
     paddingTop: 10,
@@ -327,11 +375,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#0d9488",
     borderRadius: 2,
   },
+
   scrollContent: {
     paddingHorizontal: 25,
     paddingTop: 30,
     paddingBottom: 60,
   },
+
   glassCard: {
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 24,
@@ -339,6 +389,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(13, 148, 136, 0.1)",
   },
+
   label: {
     fontSize: 10,
     fontWeight: "800",
@@ -347,6 +398,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     marginLeft: 4,
   },
+
   input: {
     fontSize: 28,
     color: "#134e4a",
@@ -356,6 +408,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginTop: 5,
   },
+
   textArea: {
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 20,
@@ -369,6 +422,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(13, 148, 136, 0.1)",
   },
+
   chipsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -384,6 +438,7 @@ const styles = StyleSheet.create({
   },
   chipActive: {
     backgroundColor: "#0d9488",
+    borderColor: "#0d9488",
   },
   chipText: {
     color: "#5f9e98",
@@ -395,6 +450,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 13,
   },
+
   dateBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -410,6 +466,7 @@ const styles = StyleSheet.create({
     color: "#134e4a",
     fontWeight: "700",
   },
+
   buttonRow: {
     flexDirection: "row",
     gap: 15,
@@ -441,5 +498,35 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     fontSize: 14,
     letterSpacing: 1,
+  },
+
+  /* iOS Date Picker Modal (same style as add-expense) */
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  modalContent: {
+    backgroundColor: "#ffffff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: Platform.OS === "ios" ? 40 : 0,
+    minHeight: 300,
+  },
+  modalHeader: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    alignItems: "flex-end",
+  },
+  doneText: {
+    color: "#0d9488",
+    fontWeight: "bold",
+    fontSize: 17,
+  },
+  pickerContainer: {
+    height: 220,
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
   },
 });
